@@ -137,4 +137,4 @@ Full traced run → [`examples/sample_run.md`](examples/sample_run.md)
 
 ## Stack
 
-Python 3.12 · [Anthropic SDK](https://github.com/anthropics/anthropic-sdk-python) · Typer · pytest
+Python 3.11+ · [Anthropic SDK](https://github.com/anthropics/anthropic-sdk-python) · Typer · pytest

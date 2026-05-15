@@ -85,12 +85,13 @@ TOOLS = [
     },
 ]
 
-_MAX_FILE_BYTES = 8_000
+_MAX_FILE_BYTES = 16_000
 _MAX_SEARCH_RESULTS = 30
 _BINARY_EXTENSIONS = {
     ".png", ".jpg", ".jpeg", ".gif", ".ico", ".pdf", ".zip",
     ".tar", ".gz", ".exe", ".whl", ".pyc",
 }
+_SKIP_DIRS = {"__pycache__", "node_modules", "dist", "venv", ".venv", "build", ".git"}
 
 
 def execute_tool(name: str, args: dict, target: Path) -> str:
@@ -110,7 +111,7 @@ def execute_tool(name: str, args: dict, target: Path) -> str:
 
 def _read_file(path: str, target: Path) -> str:
     full = (target / path).resolve()
-    if not str(full).startswith(str(target.resolve())):
+    if not full.is_relative_to(target.resolve()):
         return "Access denied: path is outside the target directory."
     if not full.exists():
         return f"File not found: {path}"
@@ -129,7 +130,7 @@ def _read_file(path: str, target: Path) -> str:
 
 def _search_pattern(pattern: str, directory: str, file_glob: str, target: Path) -> str:
     search_dir = (target / directory).resolve()
-    if not str(search_dir).startswith(str(target.resolve())):
+    if not search_dir.is_relative_to(target.resolve()):
         return "Access denied: path is outside the target directory."
     if not search_dir.exists():
         return f"Directory not found: {directory}"
@@ -162,7 +163,7 @@ def _search_pattern(pattern: str, directory: str, file_glob: str, target: Path) 
 
 def _list_directory(path: str, recursive: bool, target: Path) -> str:
     full = (target / path).resolve()
-    if not str(full).startswith(str(target.resolve())):
+    if not full.is_relative_to(target.resolve()):
         return "Access denied: path is outside the target directory."
     if not full.exists():
         return f"Directory not found: {path}"
@@ -172,10 +173,9 @@ def _list_directory(path: str, recursive: bool, target: Path) -> str:
     lines: list[str] = []
     glob = full.rglob("*") if recursive else full.iterdir()
     for p in sorted(glob):
-        # skip hidden and __pycache__
-        if any(part.startswith(".") or part == "__pycache__" for part in p.parts):
-            continue
         rel = p.relative_to(target)
+        if any(part.startswith(".") or part in _SKIP_DIRS for part in rel.parts):
+            continue
         lines.append(rel.as_posix() + ("/" if p.is_dir() else ""))
 
     return "\n".join(lines) if lines else "(empty)"
