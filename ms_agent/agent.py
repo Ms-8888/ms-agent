@@ -181,7 +181,7 @@ def _validate(client: Anthropic, question: str, answer: dict) -> float:
     try:
         response = client.messages.create(
             model=MODEL,
-            max_tokens=8,
+            max_tokens=32,
             messages=[{"role": "user", "content": prompt}],
         )
         return round(float(response.content[0].text.strip()), 2)
