@@ -9,7 +9,7 @@ ms-agent ask "Are there any security vulnerabilities?" --target ../ms-webhook-ap
 
 ---
 
-## Live terminal output
+## Terminal output (pre-generated example)
 
 ```
 ── Step 1/5
