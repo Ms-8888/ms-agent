@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from pathlib import Path
 
 import typer
@@ -13,6 +14,11 @@ app = typer.Typer(
     help="ms-agent — autonomous codebase analyst powered by Claude.",
     add_completion=False,
 )
+
+
+@app.callback()
+def main() -> None:
+    """ms-agent — autonomous codebase analyst powered by Claude."""
 
 
 @app.command()
