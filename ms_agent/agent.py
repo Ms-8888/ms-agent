@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import json
 import os
 from dataclasses import dataclass, field
@@ -6,13 +7,13 @@ from pathlib import Path
 
 from anthropic import Anthropic
 
-from ms_agent.tools import TOOLS, execute_tool
 from ms_agent.output import (
-    print_step_header,
     print_reasoning,
+    print_step_header,
     print_tool_call,
     print_tool_result,
 )
+from ms_agent.tools import TOOLS, execute_tool
 
 MODEL = "claude-sonnet-4-6"
 
