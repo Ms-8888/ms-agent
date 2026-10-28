@@ -2,7 +2,15 @@
 
 Autonomous codebase analyst powered by Claude — a ReAct agent that investigates a directory, reasons step by step, calls tools to read files and search patterns, then delivers a structured answer with a self-graded confidence score.
 
-> No API key? Read [`examples/sample_run.md`](examples/sample_run.md) to see a full traced run.
+## Problem
+
+Answering "how does this codebase handle X?" means opening files, searching, and connecting what you find. A single prompt can't do that: the model has no access to the code, and pasting everything in is slow and often too large.
+
+## Solution
+
+The agent gets four tools (list, read, search, submit) and works in a loop. It decides what to look at, reads it, and repeats for up to 5 steps before submitting a structured answer with file and line references. A second Claude call then scores how well the answer is supported by evidence.
+
+> No API key? [`examples/sample_run.md`](examples/sample_run.md) shows what a run looks like. It is a pre-generated example, not a fresh run of the current version.
 
 ---
 
@@ -23,7 +31,7 @@ ms-agent ask "Summarise the architecture" --target ./path/to/project --output re
 
 ## How it works
 
-The agent runs a **ReAct loop** (Reason + Act) — the same pattern used by production AI systems:
+The agent runs a **ReAct loop** (Reason + Act):
 
 ```
 Question
@@ -94,11 +102,13 @@ score = validate(question, final)
 
 ### Validation (`agent.py → _validate`)
 
-After the agent submits its answer, a second Claude call rates the answer quality from 0.0 to 1.0 — checking whether it cited specific evidence (file paths, line numbers) and answered the question completely. This is the self-reflection step that separates a production agent from a one-shot prompt.
+After the agent submits its answer, a second Claude call rates the answer quality from 0.0 to 1.0 — checking whether it cited specific evidence (file paths, line numbers) and answered the question completely. This is a self-check step. The score is the model's own judgement, not ground truth.
 
 ---
 
 ## Example output
+
+Illustrative terminal output:
 
 ```
 ── Step 1/5
@@ -138,3 +148,12 @@ Full traced run → [`examples/sample_run.md`](examples/sample_run.md)
 ## Stack
 
 Python 3.11+ · [Anthropic SDK](https://github.com/anthropics/anthropic-sdk-python) · Typer · pytest
+
+---
+
+## Limitations
+
+- The loop is capped at 5 steps, so large codebases are only partly explored.
+- The confidence score is the model grading itself; if the validation call fails it falls back to 0.5.
+- The four tools are covered by 10 unit tests (including path-traversal checks). The loop itself and the live API calls have no automated test.
+- Each run is several paid API calls and needs an `ANTHROPIC_API_KEY`.
