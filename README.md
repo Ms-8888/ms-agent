@@ -157,5 +157,5 @@ Python 3.11+ · [Anthropic SDK](https://github.com/anthropics/anthropic-sdk-pyth
 
 - The loop is capped at 5 steps, so large codebases are only partly explored.
 - The confidence score is the model grading itself; if the validation call fails it falls back to 0.5.
-- The four tools are covered by 10 unit tests (including path-traversal checks). The loop itself and the live API calls have no automated test.
+- The tools and the agent loop (with a mocked model) are covered by 28 tests, including path-traversal and failure-path checks. The live API calls have no automated test.
 - Each run is several paid API calls and needs an `ANTHROPIC_API_KEY`.
