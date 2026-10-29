@@ -96,6 +96,13 @@ _SKIP_DIRS = {"__pycache__", "node_modules", "dist", "venv", ".venv", "build", "
 
 
 def execute_tool(name: str, args: dict, target: Path) -> str:
+    try:
+        return _dispatch(name, args, target)
+    except (KeyError, TypeError, AttributeError):
+        return f"Invalid arguments for {name}."
+
+
+def _dispatch(name: str, args: dict, target: Path) -> str:
     if name == "read_file":
         return _read_file(args["path"], target)
     if name == "search_pattern":
