@@ -103,7 +103,10 @@ def run(question: str, target: Path, max_iterations: int = 5) -> AgentResult:
                 elif event.type == "content_block_stop" and in_tool:
                     raw = "".join(tool_json)
                     if raw:
-                        current_block["input"] = json.loads(raw)
+                        try:
+                            current_block["input"] = json.loads(raw)
+                        except json.JSONDecodeError:
+                            current_block["input"] = {}
                     in_tool = False
 
         messages.append({"role": "assistant", "content": response_blocks})
