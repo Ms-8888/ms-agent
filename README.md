@@ -1,5 +1,7 @@
 # ms-agent
 
+[![CI](https://github.com/Ms-8888/ms-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/Ms-8888/ms-agent/actions/workflows/ci.yml)
+
 Autonomous codebase analyst powered by Claude — a ReAct agent that investigates a directory, reasons step by step, calls tools to read files and search patterns, then delivers a structured answer with a self-graded confidence score.
 
 ## Problem
