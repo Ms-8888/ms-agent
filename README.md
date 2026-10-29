@@ -71,6 +71,29 @@ All tools enforce path sandboxing: attempts to read outside the target directory
 
 ---
 
+## What the agent can and cannot read
+
+File contents are sent to the model API, so one shared path policy (`ms_agent/policy.py`) applies to every tool.
+
+Denied (by name or pattern, at any depth):
+
+- Environment and credential files: `.env`, `.env.*` (but `.env.example`, `.env.sample` and `.env.template` are allowed), `credentials`, `credentials.*`, `.netrc`, `.npmrc`, `.pypirc`
+- Keys and certificates: `id_rsa`, `id_dsa`, `id_ecdsa`, `id_ed25519`, `*.pem`, `*.key`, `*.p12`, `*.pfx`, `*.jks`, `*.keystore`
+- Directories: `.git`, `.ssh`, `.aws`, `.gnupg`, `node_modules`, `venv`, `.venv`, and any directory containing a `pyvenv.cfg` (a virtualenv)
+- Anything outside the target root, including symlinks that point outside it. Symlinks to a denied file are denied too.
+
+`read_file` returns an `Access denied` message to the model for these paths. `search_pattern` skips them silently.
+
+This is a name-based deny list. It does not detect secrets pasted into ordinary source files, so do not point the agent at a directory holding secrets you would not send to the API.
+
+### Search limits
+
+`search_pattern` takes a regex written by the model, so it is bounded: patterns over 200 characters are rejected, files over 1 MB are skipped, lines over 2000 characters are skipped, at most 200,000 lines are scanned, at most 30 matches are returned, and the search stops after a 10 second budget (checked between files and every 500 lines).
+
+Python's `re` module has no per-match timeout. The budget is only checked between lines, so a pathological pattern (catastrophic backtracking) can still hang on a single line. The 2000 character line cap limits how bad one line can get, but it does not remove the risk.
+
+---
+
 ## Architecture
 
 ```
